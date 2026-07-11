@@ -29,18 +29,18 @@
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.41.2</version>
+      <version>10.0.2</version>
     </dependency>
     <dependency>
       <!-- PEM parsing for the machine key (PKCS#1). -->
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk18on</artifactId>
-      <version>1.78.1</version>
+      <version>1.84</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.18.2</version>
+      <version>2.18.8</version>
     </dependency>
   </dependencies>
 </project>
