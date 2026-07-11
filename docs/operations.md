@@ -15,7 +15,10 @@ these 1:1 (method names in your language's convention).
 - **Errors**: RFC 9457 problem JSON (`status`, `title`, `detail`,
   `errors[]`). SDKs raise a typed error carrying these fields.
 - **Scoping**: users outside your product are `404`; another product's
-  scope is `403`. This is enforced server-side on every operation.
+  scope is `403`. This is enforced server-side on every operation and
+  continuously verified by a negative-isolation test matrix: every operation
+  × {foreign-product token, unknown product, token minted without the
+  required audience scope (`401`), invalid or missing token (`401`)}.
 
 ## Creating a NEW user
 
