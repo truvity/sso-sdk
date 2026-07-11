@@ -78,6 +78,56 @@ components:
       required:
         - events
       type: object
+    ChangeEmailRequest:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/ChangeEmailRequest.json
+          format: uri
+          readOnly: true
+          type: string
+        email:
+          description: The new email address.
+          examples:
+            - jane.new@example.com
+          format: email
+          type: string
+        verifyMode:
+          default: email
+          enum:
+            - email
+            - returnCode
+          type: string
+      required:
+        - email
+      type: object
+    ChangeEmailResponse:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/ChangeEmailResponse.json
+          format: uri
+          readOnly: true
+          type: string
+        centralId:
+          type: string
+        email:
+          description: The new (unverified) address.
+          type: string
+        globalEffect:
+          description: "Always true: the email identifies the person across ALL products."
+          type: boolean
+        verificationCode:
+          type: string
+      required:
+        - centralId
+        - email
+        - globalEffect
+      type: object
     CreateUserRequest:
       additionalProperties: false
       properties:
@@ -753,6 +803,101 @@ paths:
       summary: Get the user's audit timeline within this product scope
       tags:
         - support
+  /v1/products/{product}/users/{userId}/email:
+    post:
+      description: Replaces the person's email — the cross-product identity key. The new address starts unverified and is verified centrally. Product-side IdP records that key on email must be updated by their owners (propagation contract in progress).
+      operationId: change-email
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+        - description: Unique key making the mutation safely retryable.
+          in: header
+          name: Idempotency-Key
+          schema:
+            description: Unique key making the mutation safely retryable.
+            examples:
+              - 5f3a1c2e-77aa-4a0f-9c11-000000000000
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeEmailRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangeEmailResponse"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "409":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Conflict
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Change the user's email address (GLOBAL effect)
+      tags:
+        - users
   /v1/products/{product}/users/{userId}/lock:
     post:
       description: "Deactivates the central identity: no new logins anywhere. Product sessions already issued live until they expire — terminate them product-side for an immediate cut-off."
