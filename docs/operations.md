@@ -56,7 +56,7 @@ sequenceDiagram
     B->>API: POST /users/onboard {centralId}
     API->>C: add your product's membership
     API-->>B: 200 {centralId, onboarded: true}
-    Note over B: store centralId; the user logs in with their EXISTING central credential
+    Note over B: store centralId — the user logs in with their EXISTING central credential
 ```
 
 Onboarding directly by email works too — but **only verified emails match**
