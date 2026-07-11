@@ -78,6 +78,20 @@ export interface ListUsersParams {
   emailPrefix?: string;
 }
 
+/** Replaces the user's email (GLOBAL effect — the cross-product identity key). */
+export interface ChangeEmailRequest {
+  email: string;
+  /** "email" (default) sends verification centrally; "returnCode" returns the code. */
+  verifyMode?: "email" | "returnCode";
+}
+
+export interface ChangeEmailResponse {
+  centralId: string;
+  email: string;
+  verificationCode?: string;
+  globalEffect: boolean;
+}
+
 export interface ActionResult {
   centralId: string;
   action: string;
@@ -190,6 +204,15 @@ export class Client {
   /** One user's detail within the product scope (404 outside it). */
   getUser(centralId: string): Promise<User> {
     return this.do("GET", `/users/${encodeURIComponent(centralId)}`, {});
+  }
+
+  /** Replace the user's email address (GLOBAL effect). */
+  changeEmail(centralId: string, req: ChangeEmailRequest, opts?: CallOptions): Promise<ChangeEmailResponse> {
+    return this.do("POST", `/users/${encodeURIComponent(centralId)}/email`, {
+      body: req,
+      mutation: true,
+      opts,
+    });
   }
 
   /** Resend the invitation / verification email (409 if already verified). */

@@ -128,6 +128,19 @@ class Client:
         """One user's detail within the product scope (404 outside it)."""
         return self._do("GET", f"/users/{quote(central_id, safe='')}")
 
+    def change_email(
+        self, central_id: str, *, email: str, verify_mode: str = "", idempotency_key: str = "",
+    ) -> dict[str, Any]:
+        """Replace the user's email (GLOBAL effect - the cross-product
+        identity key). The new address starts unverified."""
+        body: dict[str, Any] = {"email": email}
+        if verify_mode:
+            body["verifyMode"] = verify_mode
+        return self._do(
+            "POST", f"/users/{quote(central_id, safe='')}/email",
+            body=body, mutation=True, idempotency_key=idempotency_key,
+        )
+
     # -- support operations ------------------------------------------------
 
     def send_verification_email(self, central_id: str) -> dict[str, Any]:

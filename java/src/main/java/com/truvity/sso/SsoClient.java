@@ -95,6 +95,11 @@ public final class SsoClient {
         return call("GET", "/users/" + enc(centralId), null, false, null);
     }
 
+    /** Replaces the user's email (GLOBAL effect — the cross-product identity key). */
+    public JsonNode changeEmail(String centralId, Map<String, Object> request) {
+        return call("POST", "/users/" + enc(centralId) + "/email", request, true, null);
+    }
+
     // -- support operations ----------------------------------------------------
 
     public JsonNode sendVerificationEmail(String centralId) { return action(centralId, "/verification-email"); }

@@ -115,6 +115,34 @@ func (c *Client) GetUser(ctx context.Context, centralID string) (*User, error) {
 	return &out, nil
 }
 
+// ChangeEmailRequest replaces the user's email (GLOBAL effect — the email
+// is the person's cross-product identity key). The new address starts
+// unverified.
+type ChangeEmailRequest struct {
+	Email string `json:"email"`
+	// VerifyMode: "email" (default) sends the verification centrally;
+	// "returnCode" returns the code to the caller.
+	VerifyMode string `json:"verifyMode,omitempty"`
+}
+
+// ChangeEmailResponse confirms the change.
+type ChangeEmailResponse struct {
+	CentralID        string `json:"centralId"`
+	Email            string `json:"email"`
+	VerificationCode string `json:"verificationCode,omitempty"`
+	GlobalEffect     bool   `json:"globalEffect"`
+}
+
+// ChangeEmail replaces the user's email address (GLOBAL effect). Product
+// IdP records keying on the old address must be updated by their owners.
+func (c *Client) ChangeEmail(ctx context.Context, centralID string, req *ChangeEmailRequest, opts ...CallOption) (*ChangeEmailResponse, error) {
+	var out ChangeEmailResponse
+	if err := c.do(ctx, http.MethodPost, "/users/"+url.PathEscape(centralID)+"/email", nil, req, &out, true, opts...); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // ActionResult acknowledges a state-changing support operation.
 type ActionResult struct {
 	CentralID string `json:"centralId"`

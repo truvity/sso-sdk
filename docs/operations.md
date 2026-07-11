@@ -125,11 +125,29 @@ sequenceDiagram
 
 ## Changing a user's email
 
-**Not available through the API today.** The verified email is the key that
-links the central identity to your IdP's account — changing it involves
-every product the person uses, not just yours, so it is currently a
-platform-operator procedure. Contact the operator; a first-class flow is
-planned.
+Global effect in the strongest sense — the email is the person's
+**cross-product identity key**. The new address starts unverified and is
+verified centrally:
+
+```mermaid
+sequenceDiagram
+    participant S as Your support tooling
+    participant API as Administration API
+    participant C as Central directory
+    participant U as End user
+    S->>API: POST /users/{id}/email {email: new@…}
+    API->>C: replace address (unverified) + update every product's index
+    API-->>S: 200 {email, globalEffect: true}
+    C--)U: verification email to the NEW address
+    U->>C: confirms the new address
+```
+
+- 409 when another identity already uses the address.
+- `verifyMode: "returnCode"` returns the code to you instead of emailing it.
+- **Propagation caveat**: if your IdP connection links accounts by email,
+  update your IdP's record to the new address as part of your flow — until
+  the platform's propagation contract ships, that part is on the product.
+  If your IdP links by the immutable subject (`sub`), no action is needed.
 
 ## Reading users
 
