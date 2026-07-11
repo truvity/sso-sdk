@@ -1,4 +1,4 @@
-module github.com/truvity/sso-sdk/go
+module github.com/truvity/sso-sdk/sso
 
 go 1.24.10
 

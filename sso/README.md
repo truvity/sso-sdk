@@ -6,7 +6,7 @@ operations (verification email, password reset, lock/unlock, MFA reset,
 sessions).
 
 ```
-go get github.com/truvity/sso-sdk/go
+go get github.com/truvity/sso-sdk/sso
 ```
 
 ## Usage

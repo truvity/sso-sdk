@@ -5,7 +5,7 @@ against the central identity provider.
 
 | Language | Directory | Install |
 |---|---|---|
-| Go | [go/](go/) | `go get github.com/truvity/sso-sdk/go` |
+| Go | [sso/](sso/) | `go get github.com/truvity/sso-sdk/sso` |
 | TypeScript | _planned_ | |
 | Python | _planned_ | |
 | Java | _planned_ | |
