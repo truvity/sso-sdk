@@ -6,9 +6,9 @@ against the central identity provider.
 | Language | Directory | Install |
 |---|---|---|
 | Go | [sso/](sso/) | `go get github.com/truvity/sso-sdk/sso` |
-| TypeScript | _planned_ | |
-| Python | _planned_ | |
-| Java | _planned_ | |
+| TypeScript (Node.js) | [typescript/](typescript/) | `npm install @truvity/sso-sdk` |
+| Python | [python/](python/) | `pip install truvity-sso-sdk` |
+| Java | [java/](java/) | `com.truvity:sso-sdk` |
 
 All configuration values (API endpoint, product id, issuer, project id,
 machine key) are issued to your product during onboarding. Keep the machine
