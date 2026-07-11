@@ -2,6 +2,8 @@ module github.com/truvity/sso-sdk/sso
 
 go 1.25.0
 
+toolchain go1.26.5
+
 require (
 	github.com/zitadel/oidc/v3 v3.45.5
 	golang.org/x/oauth2 v0.35.0
