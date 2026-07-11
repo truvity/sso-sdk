@@ -22,7 +22,7 @@ jobs:
       - name: Install devbox
         run: curl -fsSL https://get.jetify.com/devbox | bash -s -- -f
 
-      - run: cd sso && devbox run -- go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+      - run: devbox run -- bash -c "cd sso && go run golang.org/x/vuln/cmd/govulncheck@latest ./..."
 
   npm-audit:
     runs-on: ubuntu-latest
@@ -34,4 +34,4 @@ jobs:
       - name: Install devbox
         run: curl -fsSL https://get.jetify.com/devbox | bash -s -- -f
 
-      - run: cd typescript && devbox run -- npm audit --audit-level=high
+      - run: devbox run -- bash -c "cd typescript && npm audit --audit-level=high"
