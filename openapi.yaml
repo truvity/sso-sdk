@@ -1,0 +1,1303 @@
+components:
+  schemas:
+    ActionResult:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/ActionResult.json
+          format: uri
+          readOnly: true
+          type: string
+        action:
+          examples:
+            - mfa.reset
+          type: string
+        centralId:
+          type: string
+        globalEffect:
+          description: "True: this affected the user across ALL products, not only the caller's."
+          type: boolean
+      required:
+        - centralId
+        - action
+        - globalEffect
+      type: object
+    AuditEvent:
+      additionalProperties: false
+      properties:
+        action:
+          examples:
+            - user.create
+          type: string
+        actor:
+          description: Human or machine actor that performed the action.
+          examples:
+            - admin@acme.example
+          type: string
+        globalEffect:
+          description: True when the action affects the user across every product (e.g. MFA reset).
+          type: boolean
+        outcome:
+          enum:
+            - success
+            - failure
+          type: string
+        requestId:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+      required:
+        - timestamp
+        - requestId
+        - action
+        - outcome
+        - actor
+        - globalEffect
+      type: object
+    AuditList:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/AuditList.json
+          format: uri
+          readOnly: true
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/AuditEvent"
+          type:
+            - array
+            - "null"
+        nextCursor:
+          type: string
+      required:
+        - events
+      type: object
+    CreateUserRequest:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/CreateUserRequest.json
+          format: uri
+          readOnly: true
+          type: string
+        email:
+          description: Email address; the identity dedup key once verified.
+          examples:
+            - jane@example.com
+          format: email
+          type: string
+        firstName:
+          examples:
+            - Jane
+          type: string
+        inviteMode:
+          default: email
+          enum:
+            - email
+            - returnCode
+          type: string
+        lastName:
+          examples:
+            - Doe
+          type: string
+      required:
+        - email
+      type: object
+    CreateUserResponse:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/CreateUserResponse.json
+          format: uri
+          readOnly: true
+          type: string
+        centralId:
+          examples:
+            - "312909238298"
+          type: string
+        created:
+          description: False when a retried idempotent request found the work already done.
+          type: boolean
+        onboarded:
+          description: Whether the product membership marker was written.
+          type: boolean
+        verificationCode:
+          description: Present only for inviteMode=returnCode.
+          type: string
+      required:
+        - centralId
+        - created
+        - onboarded
+      type: object
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        location:
+          description: Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
+          type: string
+        message:
+          description: Error message text
+          type: string
+        value:
+          description: The value at the given location
+      type: object
+    ErrorModel:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/ErrorModel.json
+          format: uri
+          readOnly: true
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          examples:
+            - Property foo is required but is missing.
+          type: string
+        errors:
+          description: Optional list of individual error details
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+          type:
+            - array
+            - "null"
+        instance:
+          description: A URI reference that identifies the specific occurrence of the problem.
+          examples:
+            - https://example.com/error-log/abc123
+          format: uri
+          type: string
+        status:
+          description: HTTP status code
+          examples:
+            - 400
+          format: int64
+          type: integer
+        title:
+          description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+          examples:
+            - Bad Request
+          type: string
+        type:
+          default: about:blank
+          description: A URI reference to human-readable documentation for the error.
+          examples:
+            - https://example.com/errors/example
+          format: uri
+          type: string
+      type: object
+    OnboardRequest:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/OnboardRequest.json
+          format: uri
+          readOnly: true
+          type: string
+        centralId:
+          description: Target identity; exactly one of centralId or email is required.
+          examples:
+            - "312909238298"
+          type: string
+        email:
+          description: Verified email of the target identity.
+          examples:
+            - jane@example.com
+          format: email
+          type: string
+      type: object
+    OnboardResponse:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/OnboardResponse.json
+          format: uri
+          readOnly: true
+          type: string
+        centralId:
+          type: string
+        onboarded:
+          description: False means it was already onboarded (idempotent no-op).
+          type: boolean
+      required:
+        - centralId
+        - onboarded
+      type: object
+    Session:
+      additionalProperties: false
+      properties:
+        createdAt:
+          format: date-time
+          type: string
+        sessionId:
+          type: string
+        userAgent:
+          type: string
+      required:
+        - sessionId
+        - createdAt
+      type: object
+    SessionList:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/SessionList.json
+          format: uri
+          readOnly: true
+          type: string
+        sessions:
+          items:
+            $ref: "#/components/schemas/Session"
+          type:
+            - array
+            - "null"
+      required:
+        - sessions
+      type: object
+    User:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/User.json
+          format: uri
+          readOnly: true
+          type: string
+        centralId:
+          description: Stable central identifier (the OIDC sub).
+          examples:
+            - "312909238298"
+          type: string
+        email:
+          description: Primary email address.
+          examples:
+            - jane@example.com
+          format: email
+          type: string
+        emailVerified:
+          description: Whether the email address is verified.
+          type: boolean
+        firstName:
+          examples:
+            - Jane
+          type: string
+        lastName:
+          examples:
+            - Doe
+          type: string
+        onboardedAt:
+          description: When the user was onboarded into the requesting product.
+          format: date-time
+          type: string
+        onboardedBy:
+          description: Actor that onboarded the user.
+          examples:
+            - admin@acme.example
+          type: string
+        status:
+          description: Membership status within the requesting product's scope.
+          enum:
+            - active
+            - suspended
+            - locked
+          type: string
+      required:
+        - centralId
+        - email
+        - emailVerified
+        - status
+      type: object
+    UserList:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://sso-proxy.example.com/schemas/UserList.json
+          format: uri
+          readOnly: true
+          type: string
+        nextCursor:
+          description: Opaque cursor for the next page; absent on the last page.
+          type: string
+        users:
+          items:
+            $ref: "#/components/schemas/User"
+          type:
+            - array
+            - "null"
+      required:
+        - users
+      type: object
+  securitySchemes:
+    bearer:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+info:
+  description: Governed administration API in front of the central identity provider. Every operation is scoped to one product; the product path parameter must match the caller's credentials.
+  title: SSO Proxy
+  version: dev
+openapi: 3.1.0
+paths:
+  /v1/products/{product}/users:
+    get:
+      description: Served from the proxy's membership index; cursor-paginated. The optional email filter matches by prefix.
+      operationId: list-users
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: Opaque pagination cursor from a previous page.
+          explode: false
+          in: query
+          name: cursor
+          schema:
+            description: Opaque pagination cursor from a previous page.
+            type: string
+        - description: Page size.
+          explode: false
+          in: query
+          name: limit
+          schema:
+            default: 50
+            description: Page size.
+            format: int64
+            maximum: 200
+            minimum: 1
+            type: integer
+        - description: Email prefix filter.
+          explode: false
+          in: query
+          name: email
+          schema:
+            description: Email prefix filter.
+            examples:
+              - jane@
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: List the product's onboarded users
+      tags:
+        - users
+    post:
+      description: Creates the central identity (no password yet) and delivers the credential invitation. If the email already belongs to an existing identity the request fails with 409 and the existing centralId — use the onboard operation to add the product membership instead.
+      operationId: create-user
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: Unique key making the mutation safely retryable.
+          in: header
+          name: Idempotency-Key
+          schema:
+            description: Unique key making the mutation safely retryable.
+            examples:
+              - 5f3a1c2e-77aa-4a0f-9c11-000000000000
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUserResponse"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "409":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Conflict
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Create a new end-user and send the invitation
+      tags:
+        - users
+  /v1/products/{product}/users/onboard:
+    post:
+      description: "The primary cross-product operation: marks an existing identity (matched by centralId, or by verified email) as a member of the calling product. Idempotent. Unverified emails never match."
+      operationId: onboard-user
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: Unique key making the mutation safely retryable.
+          in: header
+          name: Idempotency-Key
+          schema:
+            description: Unique key making the mutation safely retryable.
+            examples:
+              - 5f3a1c2e-77aa-4a0f-9c11-000000000000
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnboardRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardResponse"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Onboard an existing identity into this product
+      tags:
+        - users
+  /v1/products/{product}/users/{userId}:
+    get:
+      operationId: get-user
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Get one user's detail within this product scope
+      tags:
+        - users
+  /v1/products/{product}/users/{userId}/audit:
+    get:
+      operationId: get-user-audit
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+        - description: Opaque pagination cursor from a previous page.
+          explode: false
+          in: query
+          name: cursor
+          schema:
+            description: Opaque pagination cursor from a previous page.
+            type: string
+        - description: Page size.
+          explode: false
+          in: query
+          name: limit
+          schema:
+            default: 50
+            description: Page size.
+            format: int64
+            maximum: 200
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditList"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Get the user's audit timeline within this product scope
+      tags:
+        - support
+  /v1/products/{product}/users/{userId}/lock:
+    post:
+      description: "Deactivates the central identity: no new logins anywhere. Product sessions already issued live until they expire — terminate them product-side for an immediate cut-off."
+      operationId: lock-user
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResult"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Lock the user centrally (GLOBAL effect)
+      tags:
+        - support
+  /v1/products/{product}/users/{userId}/mfa/reset:
+    post:
+      description: Removes all second factors; the user re-enrolls at next login. One person has ONE central MFA — this affects every product, not only the caller's.
+      operationId: reset-mfa
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResult"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Remove the user's second factors (GLOBAL effect)
+      tags:
+        - support
+  /v1/products/{product}/users/{userId}/password/reset:
+    post:
+      operationId: reset-password
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResult"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Start a password reset (GLOBAL effect)
+      tags:
+        - support
+  /v1/products/{product}/users/{userId}/sessions:
+    delete:
+      operationId: terminate-all-sessions
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Terminate all central sessions of the user
+      tags:
+        - sessions
+    get:
+      operationId: list-sessions
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionList"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: List the user's central sessions
+      tags:
+        - sessions
+  /v1/products/{product}/users/{userId}/sessions/{sessionId}:
+    delete:
+      description: Ends the central session. Product tokens already issued live until expiry.
+      operationId: terminate-session
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Terminate one central session
+      tags:
+        - sessions
+  /v1/products/{product}/users/{userId}/unlock:
+    post:
+      operationId: unlock-user
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResult"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Unlock / reactivate the user (GLOBAL effect)
+      tags:
+        - support
+  /v1/products/{product}/users/{userId}/verification-email:
+    post:
+      operationId: send-verification-email
+      parameters:
+        - description: Product scope. Must match the caller's credentials.
+          in: path
+          name: product
+          required: true
+          schema:
+            description: Product scope. Must match the caller's credentials.
+            examples:
+              - acme
+            type: string
+        - description: The user's central identifier.
+          in: path
+          name: userId
+          required: true
+          schema:
+            description: The user's central identifier.
+            examples:
+              - "312909238298"
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResult"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      summary: Resend the invitation / verification email
+      tags:
+        - users
+security:
+  - bearer: []
+servers:
+  - description: Deployment base URL (environment-specific)
+    url: https://sso-proxy.example.com

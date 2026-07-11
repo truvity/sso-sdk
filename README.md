@@ -14,6 +14,13 @@ All configuration values (API endpoint, product id, issuer, project id,
 machine key) are issued to your product during onboarding. Keep the machine
 key in your secret store.
 
-See each SDK's README for usage; the semantics (product scoping,
-idempotency, verified-email onboarding, global-effect operations) are shared
-across languages.
+Documentation:
+
+- [docs/architecture.md](docs/architecture.md) — how your product, your IdP, the
+  central login, the administration API and the mail service fit together
+- [docs/integration.md](docs/integration.md) — the end-to-end integration recipe
+- [docs/operations.md](docs/operations.md) — semantics of all 13 operations
+  (create-vs-onboard, global effects, scoping, idempotency)
+- [openapi.yaml](openapi.yaml) — the API contract every SDK mirrors
+
+Each SDK's README carries the language-specific quickstart.
