@@ -5,7 +5,8 @@
     "nodejs@latest",
     "maven@latest",
     "python@latest",
-    "jdk21@latest"
+    "jdk21@latest",
+    "gh@latest"
   ],
   "shell": {
     "init_hook": [

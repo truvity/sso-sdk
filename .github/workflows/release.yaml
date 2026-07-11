@@ -1,0 +1,75 @@
+name: Release
+
+# One tag releases every SDK: vX.Y.Z stamps and publishes the npm and Maven
+# packages to GitHub Packages, attaches the Python distributions to the
+# GitHub release, and pushes the matching sso/vX.Y.Z tag for the Go module.
+# PyPI publishing (trusted publishing / OIDC) is added once the PyPI project
+# exists; npmjs.com mirror likewise once the org token is placed.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 0
+
+      - uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Install devbox
+        run: curl -fsSL https://get.jetify.com/devbox | bash -s -- -f
+
+      - name: Verify all SDKs
+        run: devbox run -- ./tools/check.sh
+
+      - name: Publish npm package (GitHub Packages)
+        working-directory: typescript
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          devbox run -- npm version --no-git-tag-version "$VERSION"
+          echo "@truvity:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}" >> .npmrc
+          devbox run -- npm publish
+
+      - name: Publish Maven package (GitHub Packages)
+        working-directory: java
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p ~/.m2
+          printf '<settings><servers><server><id>github</id><username>x-access-token</username><password>${env.GITHUB_TOKEN}</password></server></servers></settings>' > ~/.m2/settings.xml
+          devbox run -- mvn -q -B versions:set -DnewVersion="$VERSION"
+          devbox run -- mvn -q -B deploy -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Python distributions
+        working-directory: python
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+          devbox run -- python3 -m pip install --quiet build
+          devbox run -- python3 -m build
+
+      - name: Tag the Go module
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f "sso/${GITHUB_REF_NAME}" "${GITHUB_SHA}"
+          git push -f origin "sso/${GITHUB_REF_NAME}"
+
+      - name: GitHub release with Python artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${GITHUB_REF_NAME}" python/dist/* --generate-notes
