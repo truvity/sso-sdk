@@ -31,34 +31,28 @@ jobs:
         run: devbox run -- ./tools/check.sh
 
       - name: Publish npm package (GitHub Packages)
-        working-directory: typescript
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          devbox run -- npm version --no-git-tag-version "$VERSION"
-          echo "@truvity:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}" >> .npmrc
-          devbox run -- npm publish
+          echo "@truvity:registry=https://npm.pkg.github.com" >> typescript/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}" >> typescript/.npmrc
+          devbox run -- bash -c "cd typescript && npm version --no-git-tag-version $VERSION && npm publish"
 
       - name: Publish Maven package (GitHub Packages)
-        working-directory: java
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           mkdir -p ~/.m2
           printf '<settings><servers><server><id>github</id><username>x-access-token</username><password>${env.GITHUB_TOKEN}</password></server></servers></settings>' > ~/.m2/settings.xml
-          devbox run -- mvn -q -B versions:set -DnewVersion="$VERSION"
-          devbox run -- mvn -q -B deploy -DskipTests
+          devbox run -- bash -c "cd java && mvn -q -B versions:set -DnewVersion=$VERSION && mvn -q -B deploy -DskipTests"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Python distributions
-        working-directory: python
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
-          devbox run -- python3 -m pip install --quiet build
-          devbox run -- python3 -m build
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" python/pyproject.toml
+          devbox run -- bash -c "cd python && python3 -m venv /tmp/buildvenv && /tmp/buildvenv/bin/pip install --quiet build && /tmp/buildvenv/bin/python -m build"
 
       - name: Tag the Go module
         env:
