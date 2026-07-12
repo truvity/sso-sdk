@@ -19,7 +19,7 @@ Documentation:
 - [docs/architecture.md](docs/architecture.md) — how your product, your IdP, the
   central login, the administration API and the mail service fit together
 - [docs/integration.md](docs/integration.md) — the end-to-end integration recipe
-- [docs/operations.md](docs/operations.md) — semantics of all 13 operations
+- [docs/operations.md](docs/operations.md) — semantics of all 14 operations
   (create-vs-onboard, global effects, scoping, idempotency)
 - [openapi.yaml](openapi.yaml) — the API contract every SDK mirrors
 

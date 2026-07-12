@@ -1,6 +1,6 @@
 # Operations reference
 
-The API surface is 13 operations, all product-scoped under
+The API surface is 14 operations, all product-scoped under
 `/v1/products/{product}/…` and specified in [openapi.yaml](../openapi.yaml).
 This page explains the semantics the spec alone can't carry. Every SDK maps
 these 1:1 (method names in your language's convention).
