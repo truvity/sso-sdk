@@ -5,8 +5,8 @@ go 1.25.0
 toolchain go1.26.5
 
 require (
-	github.com/zitadel/oidc/v3 v3.45.5
-	golang.org/x/oauth2 v0.35.0
+	github.com/zitadel/oidc/v3 v3.47.7
+	golang.org/x/oauth2 v0.36.0
 )
 
 require (
