@@ -12,13 +12,18 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-
       - uses: actions/create-github-app-token@v3
         id: token
         with:
           app-id: ${{ secrets.RENOVATE_APP_ID }}
           private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+
+      # Checkout with the APP token: the final `git push` uses the
+      # credentials checkout persists — the default GITHUB_TOKEN is
+      # contents:read here and 403s on push.
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          token: ${{ steps.token.outputs.token }}
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
